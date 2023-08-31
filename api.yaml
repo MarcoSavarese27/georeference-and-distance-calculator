@@ -1,0 +1,138 @@
+openapi: 3.0.0
+info:
+  title: "Georeferencer-json"
+  description: "Georeferences input addresses in json format"
+  version: '1.0'
+
+servers:
+- url: /api/v1
+
+paths:
+  /georef:
+    post:
+      description: Georeferences a given set of addresses
+      operationId: georefPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/addressesJsonList'
+        required: true
+      responses:
+        200:
+          description: Addresses georeferenced correctly
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/resolutionID'
+                  - $ref: '#/components/schemas/resolutionInline'
+                  - $ref: '#/components/schemas/resolutionURL'
+                
+        400:
+          description: One or more invalid addresses
+        404:
+          description: One or more addresses do not exist
+      
+  /georef/{id}:
+    get:
+      description: Returns the list of address resoultions linked to a given ID
+      operationId: georefIdGet
+      parameters:
+      - name: id
+        in: path
+        description: ID linked to a list of resolutions
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: 'Success: ID exists'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/resolutionInline'
+        400:
+          description: Invalid ID
+        404:
+          description: ID does not exist, no resolutions found
+
+    delete:
+      description: Deletes resolutions, given the ID
+      operationId: georefIdDelete
+      parameters:
+      - name: id
+        in: path
+        description: ID linked to a list of resolutions
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: Resolutions deleted
+        400:
+          description: Invalid ID
+        404:
+          description: ID does not exist, no resolutions will be deleted
+      
+  
+components:
+  schemas:
+    addressesJsonList:
+      type: array
+      items:
+        required:
+        - addressDescription
+        - resolutionType
+        type: object
+        properties:
+          resolutionType:
+            type: string
+            enum: [ID, Inline, URL]
+          addressDescription:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+                area:
+                  type: string
+                district:
+                    type: string
+                postalCode:
+                  maximum: 98100
+                  minimum: 10
+                  type: integer
+                region:
+                  type: string
+                country:
+                  type: string
+          
+
+    resolutionID:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        
+    resolutionURL:
+      type: string
+      format: url
+
+    resolutionInline:
+      type: array
+      items:
+        type: object
+        properties:
+          address:
+            type: string
+          latitude:
+            type: number
+            format: double
+          longitude:
+            type: number
+            format: double

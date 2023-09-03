@@ -3,6 +3,7 @@ from flask_restful import Api
 from georeference.resource import Georeference, GeoreferenceId
 from distancematrix.resource import DistanceMatrix, DistanceMatrixId
 
+
 app = Flask(__name__)
 api = Api(app)
 basePath = '/api/v1'

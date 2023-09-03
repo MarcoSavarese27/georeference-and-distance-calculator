@@ -2,8 +2,9 @@ from flask import request
 from flask_restful import Resource
 from multiprocessing import Pool
 from db_interaction import retrieve_data
-from commons import utils
+from ..commons import utils
 import uuid
+
 
 resolutions = {}
 
@@ -14,7 +15,7 @@ class Georeference(Resource):
         resolutionType = jsonData['resolutionType'].lower()
         addresses = jsonData['addressesDescription']
         
-        if not self.validate_resolution_type(resolutionType):
+        if not utils.validate_resolution_type(resolutionType):
             return None, 400
         
         if resolutionType == 'inline':
@@ -36,12 +37,9 @@ class Georeference(Resource):
             if resolutionType == 'id':
                 return  {'id': id}, 200
             else:
-                url = utils.create_url('georef')
+                url = utils.create_url(request.base_url, 'georef')
                 return {'url': url}, 200
             
-    def validate_resolution_type(self, resolutionType):
-        return resolutionType in ['id', 'inline', 'url']
-    
     def address_resolution(self, add):
         geocode = retrieve_data(add)
         return geocode
@@ -51,7 +49,7 @@ class GeoreferenceId(Resource):
         
         global resolutions
         
-        if not self.is_valid_uuid(id):
+        if not utils.is_valid_uuid(id):
             return None, 400
         
         if id in resolutions:
@@ -64,7 +62,7 @@ class GeoreferenceId(Resource):
     def delete(self, id):
         global resolutions
         
-        if not self.is_valid_uuid(id):
+        if not utils.is_valid_uuid(id):
             return None, 400
         
         if id in resolutions:
@@ -74,9 +72,4 @@ class GeoreferenceId(Resource):
         return None, 404
         
         
-    def is_valid_uuid(self, val):
-        try:
-            uuid.UUID(str(val))
-            return True
-        except ValueError:
-            return False
+    

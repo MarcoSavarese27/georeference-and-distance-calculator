@@ -14,10 +14,17 @@ paths:
       operationId: georefPost
       requestBody:
         content:
+        
           application/json:
             schema:
-              $ref: '#/components/schemas/addressesJsonList'
+              $ref: '#/components/schemas/inputFormatGeoreference'
+          
+          application/xls:
+            schema:
+              $ref: '#/components/schemas/inputFormatGeoreference'
+                
         required: true
+      
       responses:
         200:
           description: Addresses georeferenced correctly
@@ -35,16 +42,17 @@ paths:
           description: One or more addresses do not exist
       
   /georef/{id}:
-    get:
-      description: Returns the list of address resoultions linked to a given ID
-      operationId: georefIdGet
-      parameters:
+    parameters:
       - name: id
         in: path
         description: ID linked to a list of resolutions
         required: true
         schema:
           type: string
+
+    get:
+      description: Returns the list of address resoultions linked to a given ID
+      operationId: georefIdGet
       responses:
         200:
           description: 'Success: ID exists'
@@ -58,15 +66,6 @@ paths:
           description: ID does not exist, no resolutions found
 
     delete:
-      description: Deletes resolutions, given the ID
-      operationId: georefIdDelete
-      parameters:
-      - name: id
-        in: path
-        description: ID linked to a list of resolutions
-        required: true
-        schema:
-          type: string
       responses:
         204:
           description: Resolutions deleted
@@ -74,15 +73,22 @@ paths:
           description: Invalid ID
         404:
           description: ID does not exist, no resolutions will be deleted
+  
   /dm:
     post:
       description: Returns the distance matrix of a given set of georeferenced addresses
       operationId: dmPost
       requestBody:
         content:
+        
           application/json:
             schema:
-              $ref: '#/components/schemas/georeferencedAddresses'
+              $ref: '#/components/schemas/inputFormatDistanceMatrix'
+          
+          application/xls:
+            schema:
+              $ref: '#/components/schemas/inputFormatDistanceMatrix'
+                  
       responses:
         200:
           description: Distances calculated correctly
@@ -90,7 +96,7 @@ paths:
             '*/*':
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/distancematrix'
+                  - $ref: '#/components/schemas/distanceMatrix'
                   - $ref: '#/components/schemas/ID'
                   - $ref: '#/components/schemas/URL'
         404:
@@ -104,6 +110,7 @@ paths:
         schema:
           type: string
         required: true
+
     get:
       description: Returns a distance matrix linked to a given ID
       operationId: dmIdGet
@@ -113,7 +120,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/distancematrix'
+                $ref: '#/components/schemas/distanceMatrix'
         
         400: 
           description: Invalid ID
@@ -134,39 +141,49 @@ paths:
   
 components:
   schemas:
+  
+    inputFormatGeoreference:
+      type: object
+      properties:
+        resolutionType:
+          $ref: '#/components/schemas/resolutionType'
+        addressInformations:
+          $ref: '#/components/schemas/addressesList'
+          
+    
+    inputFormatDistanceMatrix:
+      type: object
+      properties:
+        resolutionType:
+          $ref: '#/components/schemas/resolutionType'
+        georeferencedAddress:
+          $ref: '#/components/schemas/resolutionInline'
+    
+    resolutionType:
+      type: string
+      enum: [ID, Inline, URL]
 
-    addressesJsonList:
+    addressesList:
       type: array
       items:
-        required:
-        - addressDescription
-        - resolutionType
         type: object
         properties:
-          resolutionType:
+          name:
             type: string
-            enum: [ID, Inline, URL]
-          addressDescription:
-            type: array
-            items:
-              type: object
-              properties:
-                name:
-                  type: string
-                address:
-                  type: string
-                area:
-                  type: string
-                district:
-                    type: string
-                zipCode:
-                  maximum: 98100
-                  minimum: 10
-                  type: integer
-                region:
-                  type: string
-                country:
-                  type: string
+          address:
+            type: string
+          area:
+            type: string
+          district:
+            type: string
+          zipCode:
+            maximum: 98100
+            minimum: 10
+            type: integer
+          region:
+            type: string
+          country:
+            type: string
           
     resolutionInline:
       type: array
@@ -182,27 +199,7 @@ components:
             type: number
             format: double
     
-    georeferencedAddresses:
-      type: object
-      properties:
-        resolutionType:
-          type: string
-          enum: [ID, Inline, URL]
-        addresses:
-          type: array
-          items:
-            type: object
-            properties:
-              address: 
-                type: string
-              latitude:
-                type: number
-                format: double
-              longitude: 
-                type: number
-                format: double
-
-    distancematrix:
+    distanceMatrix:
       type: array
       items:
         type: array

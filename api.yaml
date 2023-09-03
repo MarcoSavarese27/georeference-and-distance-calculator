@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: "Georeferencer-json"
+  title: "georeference and distance calculator"
   description: "Georeferences input addresses in json format"
   version: '1.0'
 
@@ -25,9 +25,9 @@ paths:
             '*/*':
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/resolutionID'
                   - $ref: '#/components/schemas/resolutionInline'
-                  - $ref: '#/components/schemas/resolutionURL'
+                  - $ref: '#/components/schemas/ID'
+                  - $ref: '#/components/schemas/URL'
                 
         400:
           description: One or more invalid addresses
@@ -74,10 +74,67 @@ paths:
           description: Invalid ID
         404:
           description: ID does not exist, no resolutions will be deleted
-      
+  /dm:
+    post:
+      description: Returns the distance matrix of a given set of georeferenced addresses
+      operationId: dmPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/georeferencedAddresses'
+      responses:
+        200:
+          description: Distances calculated correctly
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/distancematrix'
+                  - $ref: '#/components/schemas/ID'
+                  - $ref: '#/components/schemas/URL'
+        404:
+          description: Could not calculate one or more distances
+
+  /dm/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID linked to a calculated distance matrix
+        schema:
+          type: string
+        required: true
+    get:
+      description: Returns a distance matrix linked to a given ID
+      operationId: dmIdGet
+      responses:
+        200:
+          description: ID exists, getting the distance matrix
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/distancematrix'
+        
+        400: 
+          description: Invalid ID
+        
+        404: 
+          description: ID does not exist, no matrices found
+
+    delete:
+      description: Deletes matrix' id
+      operationId: dmIdDelete
+      responses:
+        204:
+          description: Matrix deleted
+        400:
+          description: Invalid ID
+        404:
+          description: ID does not exist, no matrices will be deleted
   
 components:
   schemas:
+
     addressesJsonList:
       type: array
       items:
@@ -102,7 +159,7 @@ components:
                   type: string
                 district:
                     type: string
-                postalCode:
+                zipCode:
                   maximum: 98100
                   minimum: 10
                   type: integer
@@ -111,18 +168,6 @@ components:
                 country:
                   type: string
           
-
-    resolutionID:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        
-    resolutionURL:
-      type: string
-      format: url
-
     resolutionInline:
       type: array
       items:
@@ -136,3 +181,44 @@ components:
           longitude:
             type: number
             format: double
+    
+    georeferencedAddresses:
+      type: object
+      properties:
+        resolutionType:
+          type: string
+          enum: [ID, Inline, URL]
+        addresses:
+          type: array
+          items:
+            type: object
+            properties:
+              address: 
+                type: string
+              latitude:
+                type: number
+                format: double
+              longitude: 
+                type: number
+                format: double
+
+    distancematrix:
+      type: array
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            kmDistance:
+              type: number
+              format: float
+            time:
+              type: string
+    
+    ID:
+      type: string
+      format: uuid
+      
+    URL:
+      type: string
+      format: url

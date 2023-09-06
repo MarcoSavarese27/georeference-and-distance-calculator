@@ -29,13 +29,18 @@ paths:
         200:
           description: Addresses georeferenced correctly
           content:
-            '*/*':
+
+            application/json:
               schema:
                 oneOf:
                   - $ref: '#/components/schemas/resolutionInline'
                   - $ref: '#/components/schemas/ID'
                   - $ref: '#/components/schemas/URL'
-                
+            
+            application/xls:
+              schema: 
+                $ref: '#/components/schemas/resolutionInline'
+
         400:
           description: One or more invalid addresses
         404:
@@ -57,9 +62,15 @@ paths:
         200:
           description: 'Success: ID exists'
           content:
-            '*/*':
+
+            application/json:
               schema:
                 $ref: '#/components/schemas/resolutionInline'
+
+            application/xls:
+              schema:
+                $ref: '#/components/schemas/resolutionInline'
+
         400:
           description: Invalid ID
         404:
@@ -93,10 +104,14 @@ paths:
         200:
           description: Distances calculated correctly
           content:
-            '*/*':
+
+            application/xls:
+              schema:
+                  $ref: '#/components/schemas/distanceMatrix'
+
+            application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/distanceMatrix'
                   - $ref: '#/components/schemas/ID'
                   - $ref: '#/components/schemas/URL'
         404:
@@ -118,7 +133,7 @@ paths:
         200:
           description: ID exists, getting the distance matrix
           content:
-            '*/*':
+            application/xls:
               schema:
                 $ref: '#/components/schemas/distanceMatrix'
         

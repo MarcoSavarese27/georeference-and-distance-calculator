@@ -1,6 +1,8 @@
 import pandas as pd
 import os
 import requests
+import commons
+
 
 
 def get_matrix_osrm(address_names: list) -> pd.DataFrame:
@@ -20,7 +22,19 @@ def get_matrix_osrm(address_names: list) -> pd.DataFrame:
         KM_and_Time_Data.loc[KM_and_Time_Data.index[row_index]] = km_and_time_row
         row_index += 1
     
-    return KM_and_Time_Data
+    fd = f'distancematrix/xls/{commons.create_uuid()}.xlsx'
+    writer = pd.ExcelWriter(f'distancematrix/xls/{commons.create_uuid()}.xlsx', engine='xlsxwriter')
+    KM_and_Time_Data.to_excel(writer, sheet_name='Sheet1')
+    worksheet = writer.sheets['Sheet1']
+    adjust_column(KM_and_Time_Data, worksheet)
+    writer.close()
+
+    return fd
+
+def adjust_column(df:pd.DataFrame, worksheet) -> None:
+    for i, col in enumerate(df.columns):
+        width = max(df[col].apply(lambda x: len(str(x))).max(), len(col))
+        worksheet.set_column(i, i, width)
 
 def get_route(start_coord:tuple, end_coord:tuple) -> tuple:
     OSRM_SERVER = os.environ['OSRM_SERVER']
@@ -28,6 +42,7 @@ def get_route(start_coord:tuple, end_coord:tuple) -> tuple:
 
     res = requests.get(url).json()
     distance_km = round((res['routes'][0]['distance']/1000), ndigits=3)
+    print(distance_km)
     distance_seconds = round(res['routes'][0]['duration'], ndigits=3)
 
     return (distance_km, distance_seconds)

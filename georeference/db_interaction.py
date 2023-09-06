@@ -1,5 +1,5 @@
 import sqlite3
-from georeference import geocoding_result
+from georeference.georeference import geocoding_result
 
 def retrieve_data(add):
     address = add['address']
@@ -29,7 +29,7 @@ def retrieve_data(add):
 
 
 def get_db_connection():
-    conn = sqlite3.connect('db/database.db')
+    conn = sqlite3.connect('georeference/db/database.db')
     cur = conn.cursor()
     return conn, cur
     

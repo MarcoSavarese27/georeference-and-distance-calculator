@@ -4,7 +4,6 @@ import requests
 import commons
 
 
-
 def get_matrix_osrm(address_names: list) -> pd.DataFrame:
     KM_and_Time_Data = pd.DataFrame(columns=[name['address'] for name in address_names], index=[name['address'] for name in address_names])
     row_index = 0
@@ -42,7 +41,6 @@ def get_route(start_coord:tuple, end_coord:tuple) -> tuple:
 
     res = requests.get(url).json()
     distance_km = round((res['routes'][0]['distance']/1000), ndigits=3)
-    print(distance_km)
     distance_seconds = round(res['routes'][0]['duration'], ndigits=3)
 
     return (distance_km, distance_seconds)

@@ -13,18 +13,14 @@ paths:
       description: Georeferences a given set of addresses
       operationId: georefPost
       requestBody:
+        required: true
         content:
-        
           application/json:
             schema:
-              $ref: '#/components/schemas/inputFormatGeoreference'
+              oneOf:
+                - $ref: '#/components/schemas/inputFormatGeoreference'
+                - $ref: '#/components/schemas/inputWithXls'
           
-          application/xls:
-            schema:
-              $ref: '#/components/schemas/inputFormatGeoreference'
-                
-        required: true
-      
       responses:
         200:
           description: Addresses georeferenced correctly
@@ -36,11 +32,7 @@ paths:
                   - $ref: '#/components/schemas/resolutionInline'
                   - $ref: '#/components/schemas/ID'
                   - $ref: '#/components/schemas/URL'
-            
-            application/xls:
-              schema: 
-                $ref: '#/components/schemas/resolutionInline'
-
+                  - $ref: '#/components/schemas/xlsPath'
         400:
           description: One or more invalid addresses
         404:
@@ -59,20 +51,20 @@ paths:
       description: Returns the list of address resoultions linked to a given ID
       operationId: georefIdGet
       responses:
+      
         200:
           description: 'Success: ID exists'
           content:
 
             application/json:
               schema:
-                $ref: '#/components/schemas/resolutionInline'
-
-            application/xls:
-              schema:
-                $ref: '#/components/schemas/resolutionInline'
+                oneOf:
+                  - $ref: '#/components/schemas/resolutionInline'
+                  - $ref: '#/components/schemas/xlsPath'
 
         400:
           description: Invalid ID
+          
         404:
           description: ID does not exist, no resolutions found
 
@@ -90,30 +82,25 @@ paths:
       description: Returns the distance matrix of a given set of georeferenced addresses
       operationId: dmPost
       requestBody:
+        required: true
         content:
         
           application/json:
             schema:
-              $ref: '#/components/schemas/inputFormatDistanceMatrix'
+              oneOf:
+                - $ref: '#/components/schemas/inputFormatDistanceMatrix'
+                - $ref: '#/components/schemas/inputWithXls'
           
-          application/xls:
-            schema:
-              $ref: '#/components/schemas/inputFormatDistanceMatrix'
-                  
       responses:
         200:
           description: Distances calculated correctly
           content:
-
-            application/xls:
-              schema:
-                  $ref: '#/components/schemas/distanceMatrix'
-
             application/json:
               schema:
                 oneOf:
                   - $ref: '#/components/schemas/ID'
                   - $ref: '#/components/schemas/URL'
+                  - $ref: '#/components/schemas/xlsPath'
         404:
           description: Could not calculate one or more distances
 
@@ -133,9 +120,9 @@ paths:
         200:
           description: ID exists, getting the distance matrix
           content:
-            application/xls:
+            application/json:
               schema:
-                $ref: '#/components/schemas/distanceMatrix'
+                $ref: '#/components/schemas/xlsPath'
         
         400: 
           description: Invalid ID
@@ -165,7 +152,14 @@ components:
         addressInformations:
           $ref: '#/components/schemas/addressesList'
           
-    
+    inputWithXls:
+      type: object
+      properties:
+        resolutionType:
+          $ref: '#/components/schemas/resolutionType'
+        filePath:
+          $ref: '#/components/schemas/xlsPath'
+          
     inputFormatDistanceMatrix:
       type: object
       properties:
@@ -234,3 +228,8 @@ components:
     URL:
       type: string
       format: url
+      
+    xlsPath:
+      type: string
+      format: path
+      

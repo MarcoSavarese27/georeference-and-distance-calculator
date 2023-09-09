@@ -38,7 +38,7 @@ class Georeference(Resource):
             
             if resolutionType == 'id':
                 return  {'id': id}, 200
-            else:
+            elif resolutionType == 'url':
                 url = commons.create_url(request.base_url, id)
                 return {'url': url}, 200
             
@@ -48,9 +48,9 @@ class Georeference(Resource):
 
 class GeoreferenceId(Resource):
 
+    global resolutions
+    
     def get(self, id):
-        
-        global resolutions
         
         if not commons.is_valid_uuid(id):
             return None, 400
@@ -63,7 +63,6 @@ class GeoreferenceId(Resource):
 
 
     def delete(self, id):
-        global resolutions
         
         if not commons.is_valid_uuid(id):
             return None, 400

@@ -1,58 +1,38 @@
 from flask import request
 from flask_restful import Resource
-from multiprocessing import Pool
-from georeference.db_interaction import retrieve_data
-import commons
+from georeference.handlepost import handle_json_post, handle_xlsx_post, resolutions
+from georeference.xls_json_converter import convert_to_json
+from commons import validate_resolution_type, is_valid_uuid
 
-
-resolutions = {}
 
 class Georeference(Resource):
 
     def post(self):
         
         jsonData = request.json
+        jsonDataKeys = list(jsonData.keys())
         resolutionType = jsonData['resolutionType'].lower()
-        addresses = jsonData['addressesDescription']
         
-        if not commons.validate_resolution_type(resolutionType):
+        if not validate_resolution_type(resolutionType):
             return None, 400
         
-        if resolutionType == 'inline':
-            reslist = []
-            for k in addresses:
-                res = self.address_resolution(k)
-        
-                if isinstance(res, str):
-                    continue
-                
-                reslist.append(res)
-            return reslist, 200
-        
+        if jsonDataKeys[1] == 'addressesDescription':
+            addresses = jsonData['addressesDescription']
+            content, code = handle_json_post(resolutionType, addresses, request.base_url)
+            
+        elif jsonDataKeys[1] == 'filePath': 
+            addresses = convert_to_json(jsonData['filePath'])  
+            content, code = handle_xlsx_post(resolutionType, addresses, request.base_url)
         else:
-
-            id = commons.create_uuid()
-            workers = Pool(2)
-            global resolutions
-            resolutions[id] = workers.map_async(self.address_resolution, addresses)
-            
-            if resolutionType == 'id':
-                return  {'id': id}, 200
-            elif resolutionType == 'url':
-                url = commons.create_url(request.base_url, id)
-                return {'url': url}, 200
-            
-    def address_resolution(self, add):
-        geocode = retrieve_data(add)
-        return geocode
-
+            return None, 400
+        
+        return content, code
+        
 class GeoreferenceId(Resource):
 
-    global resolutions
-    
     def get(self, id):
         
-        if not commons.is_valid_uuid(id):
+        if not is_valid_uuid(id):
             return None, 400
         
         if id in resolutions:
@@ -61,10 +41,9 @@ class GeoreferenceId(Resource):
         
         return None, 404
 
-
     def delete(self, id):
         
-        if not commons.is_valid_uuid(id):
+        if not is_valid_uuid(id):
             return None, 400
         
         if id in resolutions:

@@ -1,4 +1,5 @@
 import uuid
+import pandas as pd
 
 def create_uuid() -> str:
     return str(uuid.uuid4())
@@ -15,3 +16,8 @@ def is_valid_uuid(val:str) -> bool:
         
 def validate_resolution_type(resolutionType:str) -> bool:
         return resolutionType in ['id', 'inline', 'url']
+
+def adjust_column(df:pd.DataFrame, worksheet) -> None:
+    for i, col in enumerate(df.columns):
+        width = max(df[col].apply(lambda x: len(str(x))).max(), len(col))
+        worksheet.set_column(i, i, width)

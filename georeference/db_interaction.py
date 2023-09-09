@@ -1,15 +1,17 @@
 import sqlite3
 from georeference.georeference import geocoding_result
+from typing import Optional
 
-def retrieve_data(add):
+def retrieve_data(add:dict) -> Optional[dict]:
+
     address = add['address']
     conn, cur = get_db_connection()
     res = cur.execute(f"SELECT * FROM resolutions WHERE address LIKE '{address}'").fetchone()
     if res is None:
-        addressToGeocode = f'{add["address"]} {add["area"]} {add["district"]} {add["postalCode"]} {add["region"]}'
+        addressToGeocode = f'{address} {add["area"]} {add["district"]} {add["zipCode"]} {add["region"]}'
         geocode = geocoding_result(addressToGeocode)
         num = cur.execute("SELECT COUNT(*) FROM resolutions").fetchone()[0]
-        print(num)
+        
         if geocode is None:
             return None
  

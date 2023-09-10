@@ -7,9 +7,9 @@ from typing import Optional
 
 resolutions = {}
 
-def handle_json_post(resolutionType:str, addresses:list, base_url:str) -> tuple:
+def handle_json_post(resolution_type:str, addresses:list, base_url:str) -> tuple:
     
-    if resolutionType == 'inline':
+    if resolution_type == 'inline':
         content, code = inline_resolution(addresses)
         return content, code
     
@@ -19,17 +19,17 @@ def handle_json_post(resolutionType:str, addresses:list, base_url:str) -> tuple:
         global resolutions
         resolutions[id] = workers.map_async(address_resolution, addresses)
             
-        if resolutionType == 'id':
+        if resolution_type == 'id':
             return id_resolution(id)
-        elif resolutionType == 'url':
+        elif resolution_type == 'url':
             return url_resolution(id, base_url)
 
 
-def handle_xlsx_post(resolutionType:str, addresses:list, base_url:str) -> tuple:
+def handle_xlsx_post(resolution_type:str, addresses:list, base_url:str) -> tuple:
     
     id = create_uuid()
 
-    if resolutionType == 'inline':
+    if resolution_type == 'inline':
         content, code = inline_resolution(addresses)
         path = convert_to_xls(content, id)
         return path, code
@@ -37,11 +37,12 @@ def handle_xlsx_post(resolutionType:str, addresses:list, base_url:str) -> tuple:
     else:
         worker = Pool(1)
         global resolutions
-        resolutions[id] = worker.apply_async()
+        georeference_args = (addresses, id)
+        resolutions[id] = worker.apply_async(id_url_xls_resolution, georeference_args)
         
-        if resolutionType == 'id':
+        if resolution_type == 'id':
             return id_resolution(id)
-        elif resolutionType == 'url':
+        elif resolution_type == 'url':
             return url_resolution(id, base_url)
 
 
@@ -69,7 +70,7 @@ def url_resolution(id:str, base_url:str) -> tuple:
     url = create_url(base_url, id)
     return {'url': url}, 200
 
-def id_url_xls_resolution(addresses: list, id: str) -> str:
+def id_url_xls_resolution(addresses:list, id:str) -> str:
     reslist = []
     
     for k in addresses:

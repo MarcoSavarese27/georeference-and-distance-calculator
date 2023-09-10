@@ -8,8 +8,8 @@ def retrieve_data(add:dict) -> Optional[dict]:
     conn, cur = get_db_connection()
     res = cur.execute(f"SELECT * FROM resolutions WHERE address LIKE '{address}'").fetchone()
     if res is None:
-        addressToGeocode = f'{address} {add["area"]} {add["district"]} {add["zipCode"]} {add["region"]}'
-        geocode = geocoding_result(addressToGeocode)
+        address_to_geocode = f'{address} {add["area"]} {add["district"]} {add["zipCode"]} {add["region"]}'
+        geocode = geocoding_result(address_to_geocode)
         num = cur.execute("SELECT COUNT(*) FROM resolutions").fetchone()[0]
         
         if geocode is None:

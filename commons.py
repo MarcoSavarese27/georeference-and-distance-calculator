@@ -17,6 +17,19 @@ def is_valid_uuid(val:str) -> bool:
 def validate_resolution_type(resolution_type:str) -> bool:
         return resolution_type in ['id', 'inline', 'url']
 
+def convert_to_json(path: str, campi:list) -> dict:
+    
+    addresses = []
+    frame = pd.read_excel(path)
+    
+    for i in range(frame.__len__()):
+        address = {}
+        for campo in campi:
+            address[campo] = frame.at[i, campo]
+        addresses.append(address)
+    
+    return addresses
+
 def adjust_column(df:pd.DataFrame, worksheet) -> None:
     for i, col in enumerate(df.columns):
         width = max(df[col].apply(lambda x: len(str(x))).max(), len(col))

@@ -2,20 +2,6 @@
 import pandas as pd
 
 
-def convert_to_json(path: str) -> dict:
-    
-    addresses = []
-    campi = ['address', 'area', 'district', 'zipCode', 'region']
-    frame = pd.read_excel(path)
-    
-    for i in range(frame.__len__()):
-        address = {}
-        for campo in campi:
-            address[campo] = frame.at[i, campo]
-        addresses.append(address)
-    
-    return addresses
-
 def convert_to_xls(json_data: list, id: str) -> str:
     
     georef_data = pd.DataFrame(columns=[col for col in ['address', 'latitude', 'longitude']], index = [(i+1) for i in range(json_data.__len__())])

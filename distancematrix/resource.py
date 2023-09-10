@@ -1,9 +1,10 @@
 from flask import request
 from flask_restful import Resource
-from distancematrix.distancematrix import get_matrix_osrm
-from multiprocessing import Pool
-from commons import create_url, create_uuid, validate_resolution_type, is_valid_uuid
 import os
+from multiprocessing import Pool
+from distancematrix.distancematrix import get_matrix_osrm
+from commons import create_url, create_uuid, validate_resolution_type, is_valid_uuid, convert_to_json
+
 
 
 matrix = {}
@@ -13,16 +14,24 @@ class DistanceMatrix(Resource):
     def post(self):
         
         data = request.json
+        data_keys = list(data.keys())
         resolution_type = data['resolutionType'].lower()
-        georeferenced_addresses = data['addresses']
-
+        
         if not validate_resolution_type(resolution_type):
+            return None, 400
+        
+        if data_keys[1] == 'addressesDescription':
+            georeferenced_addresses = data['addresses']
+            
+        elif data_keys[1] == 'filePath': 
+            georeferenced_addresses = convert_to_json(path=data['filePath'], campi=['address', 'latitude', 'longitude'])  
+        else:
             return None, 400
         
         id = create_uuid()
         if resolution_type == 'inline':
-            matrixfd = get_matrix_osrm(georeferenced_addresses, id)
-            return matrixfd, 200
+            matrix_fd = get_matrix_osrm(georeferenced_addresses, id)
+            return matrix_fd, 200
         
         else:
             workers = Pool(1)

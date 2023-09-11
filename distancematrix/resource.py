@@ -20,7 +20,7 @@ class DistanceMatrix(Resource):
         if not validate_resolution_type(resolution_type):
             return None, 400
         
-        if data_keys[1] == 'addressesDescription':
+        if data_keys[1] == 'addresses':
             georeferenced_addresses = data['addresses']
             
         elif data_keys[1] == 'filePath': 

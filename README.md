@@ -14,5 +14,5 @@ Supported outputs:
 
 The user may retrieve data in three ways:
 - ID: returns a uuid. This uuid can be used as a handle: the user, by doing a get with this id, can retrieve datas. If the resource is not ready, the user will wait for the process to end;
-- URL: similar to the ID method, the code returns an URL. The user may use the URL to retrieve the datas.
+- URL: similar to the ID method, the code returns an URL. The user may use the URL to retrieve the datas;
 - Inline: direct response. 

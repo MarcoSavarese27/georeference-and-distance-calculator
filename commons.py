@@ -1,5 +1,6 @@
 import uuid
 import pandas as pd
+import sqlite3
 
 def create_uuid() -> str:
     return str(uuid.uuid4())
@@ -34,3 +35,8 @@ def adjust_column(df:pd.DataFrame, worksheet) -> None:
     for i, col in enumerate(df.columns):
         width = max(df[col].apply(lambda x: len(str(x))).max(), len(col))
         worksheet.set_column(i, i, width)
+
+def get_db_connection(path:str):
+    conn = sqlite3.connect(path)
+    cur = conn.cursor()
+    return conn, cur

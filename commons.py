@@ -9,17 +9,16 @@ def create_url(base_path:str, id:str) -> str:
     return f'{base_path}/{id}'
 
 def is_valid_uuid(val:str) -> bool:
-        try:
-            uuid.UUID(val)
-            return True
-        except ValueError:
-            return False
+    try:
+        uuid.UUID(val)
+        return True
+    except ValueError:
+        return False
         
 def validate_resolution_type(resolution_type:str) -> bool:
         return resolution_type in ['id', 'inline', 'url']
 
 def convert_to_json(path: str, campi:list) -> dict:
-    
     addresses = []
     frame = pd.read_excel(path)
     

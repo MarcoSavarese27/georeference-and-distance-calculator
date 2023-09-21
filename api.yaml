@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: "georeference and distance calculator"
-  description: "Georeferences input addresses in json format"
+  description: "Georeferences and calculates the distance matrix of a given set of addresses"
   version: '1.0'
 
 servers:
@@ -50,8 +50,8 @@ paths:
     get:
       description: Returns the list of address resoultions linked to a given ID
       operationId: georefIdGet
-      responses:
       
+      responses:
         200:
           description: 'Success: ID exists'
           content:
@@ -61,7 +61,6 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/resolutionInline'
                   - $ref: '#/components/schemas/xlsPath'
-
         400:
           description: Invalid ID
           
@@ -69,6 +68,8 @@ paths:
           description: ID does not exist, no resolutions found
 
     delete:
+      description: Deletes resolutions' id
+      operationId: georefIdDelete
       responses:
         204:
           description: Resolutions deleted
@@ -116,6 +117,7 @@ paths:
     get:
       description: Returns a distance matrix linked to a given ID
       operationId: dmIdGet
+
       responses:
         200:
           description: ID exists, getting the distance matrix
@@ -123,7 +125,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/xlsPath'
-        
         400: 
           description: Invalid ID
         
@@ -131,8 +132,9 @@ paths:
           description: ID does not exist, no matrices found
 
     delete:
-      description: Deletes matrix' id
+      description: Deletes matrix' id and related file
       operationId: dmIdDelete
+
       responses:
         204:
           description: Matrix deleted
